@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Test</title>
+</head>
+
+<body>
+  <p></p>
+
+  <input type="button" id="addParagraphButton" value="Add Paragraph" />
+  <p></p>
+  <div id="grid1"></div>
+  <p></p>
+  <div id="grid2"></div>
+  <p></p>
+  <div id="grid3"></div>
+
+  <p></p>
+  <input type="button" id="addListButton" value="Add List" />
+  <p></p>
+  <ul id="list1">
+  </ul>
+
+  <p></p>
+
+  <div>
+    <h3>Vehicles</h3>
+    <input type="button" id="addColumnButton" value="Add Table Column" />
+    <p></p>
+    <div id='div3'>
+      <input type="button" id="addCheckBoxButton" value="Add CheckBox" />
+    </div>
+    <p></p>
+
+    <table id='table1' border="1">
+    </table>
+  </div>
+
+  <script>
+    console.log('Starting ...');
+    const paragraph = "A paragraph is a self-contained unit of a discourse in writing dealing with a particular point or idea. A paragraph consists of one or more sentences. Though not required by the syntax of any language, paragraphs are usually an expected part of formal writing, used to organize longer prose."
+    addParagraphButton.onclick = () => {
+      let txt1 = document.createElement("a");
+      let txt2 = document.createElement("b");
+      let txt3 = document.createElement("c");
+      txt1.innerText = paragraph;
+      txt2.innerText = paragraph;
+      txt3.innerText = paragraph;
+      document.getElementById('grid1').appendChild(txt1);
+      document.getElementById('grid2').appendChild(txt2);
+      document.getElementById('grid3').appendChild(txt3);
+    }
+
+    const records = ['Toyota,Vios,Black,2018',
+      'Toyota,Vios,Sliver,2016',
+      'Audi,A4,White,2008',
+      'Nissan,Altima,Black,2013',
+      'Toyota,Camry,White,2008',
+      'Toyota,Corolla,Sliver,2019']
+
+    addListButton.onclick = () => {
+      records.forEach(record => {
+        let txt = document.createElement("li");
+        txt.innerHTML = record
+        document.getElementById('list1').appendChild(txt);
+      });
+    }
+
+    class vehicle {
+      constructor([make, model, color, year]) {
+        this.make = make;
+        this.model = model;
+        this.color = color;
+        this.year = year;
+      }
+    };
+
+
+
+    let vehicles = [];
+    let vehiclesArr = [];
+    fetch('http://0.0.0.0:8080/records.txt', {
+      mode: 'cors'
+    })
+      .then(response => response.text())
+      .then(text => {
+        const textArr = text.split('\n')
+        textArr.forEach(element => {
+          const vehicleInfo = element.replace('\r', '')
+          singObjArr = vehicleInfo.split(',')
+          vehicles.push(new vehicle(singObjArr))
+        });
+      }).then(RederTable(vehicles))
+
+    function RederTable(data) {
+      const myNode = document.getElementById("table1");
+      while (myNode.firstChild) {
+        myNode.removeChild(myNode.firstChild);
+      }
+      let filling = "";
+      if (data) {
+        let table = document.createElement('tr');
+        table.innerHTML = '<th>Make</th><th>Model</th><th>Color</th><th>Year</th>'
+        document.getElementById('table1').appendChild(table);
+        setTimeout(() => {
+          data.forEach(ele => {
+            let txt = document.createElement("tr");
+            txt.innerHTML = `<td>${ele.make}</td><td>${ele.model}</td><td>${ele.color}</td><td>${ele.year}</td>`
+            document.getElementById('table1').appendChild(txt);
+          });
+        }, 300);
+      }
+    }
+
+    addColumnButton.onclick = () => {
+      let table = document.createElement('th');
+      table.innerHTML = 'Index'
+      document.getElementsByTagName('tr')[0].appendChild(table);
+      const total = document.getElementsByTagName('tr').length
+      let i = 1;
+      while (i < total) {
+        let idxCell = document.createElement('td')
+        idxCell.innerHTML = i
+        document.getElementsByTagName('tr')[i].appendChild(idxCell);
+        i++;
+      }
+    }
+
+    addCheckBoxButton.onclick = () => {
+      let table = document.createElement('th');
+      table.innerHTML = 'CheckBox'
+      document.getElementsByTagName('tr')[0].appendChild(table);
+      if (!document.getElementById('filterCar')) {
+        let filterBtn = document.createElement('input');
+        filterBtn.value = 'Filter White Vehicles'
+        filterBtn.type = 'button'
+        filterBtn.id = 'filterCar'
+        document.getElementById('div3').appendChild(filterBtn);
+      }
+
+
+      const total = document.getElementsByTagName('tr').length
+      let i = 1;
+      while (i < total) {
+        let idxCell = document.createElement('td')
+        idxCell.innerHTML = `<input type="checkbox" id="checkbox${i}"><br>`
+        document.getElementsByTagName('tr')[i].appendChild(idxCell);
+        i++;
+      }
+
+      filterCar.onclick = () => {
+        let filterData = []
+
+        if (!document.getElementById('resetBtn')) {
+          let resetBtn = document.createElement('input');
+          resetBtn.value = 'Reset Table'
+          resetBtn.type = 'button'
+          resetBtn.id = 'resetBtn'
+          document.getElementById('div3').appendChild(resetBtn);
+        }
+        fetch('http://0.0.0.0:8080/records.txt', {
+          mode: 'cors'
+        })
+          .then(response => response.text())
+          .then(text => {
+            const textArr = text.split('\n')
+            textArr.forEach(element => {
+              const vehicleInfo = element.replace('\r', '')
+              singObjArr = vehicleInfo.split(',')
+              if (singObjArr.includes('White')) {
+                filterData.push(new vehicle(singObjArr))
+              }
+            });
+          }).then(RederTable(filterData))
+
+        resetBtn.onclick = () => {
+          let filterData = []
+          fetch('http://0.0.0.0:8080/records.txt', {
+            mode: 'cors'
+          })
+            .then(response => response.text())
+            .then(text => {
+              const textArr = text.split('\n')
+              textArr.forEach(element => {
+                const vehicleInfo = element.replace('\r', '')
+                singObjArr = vehicleInfo.split(',')
+                filterData.push(new vehicle(singObjArr))
+              });
+            }).then(RederTable(filterData))
+        }
+      }
+
+    }
+  </script>
+</body>
+
+</html>

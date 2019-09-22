@@ -1,0 +1,10 @@
+Toyota,Vios,Black,2018
+Toyota,Vios,Sliver,2016
+Audi,A4,White,2008
+Toyota,Camry,White,2008
+Toyota,Corolla,Sliver,2019
+Nissan,Altima,Black,2013
+Nissan,Altima,Blue,2019
+Nissan,Altima,White,2017
+Audi,A4,Sliver,2019
+Toyota,Camry,Red,2019
